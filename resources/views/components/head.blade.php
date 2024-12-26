@@ -1,7 +1,8 @@
  <div
-     class="bg-[#11c5ee] py-2 sm:px-4 pl-0 ml-0  grid gap-5 place-items-center text-[#10116c] grid-cols-[repeat(5,20%)] sm:grid-cols-[80px_auto_1fr_1fr_auto]">
-     <img src="{{ asset('images/icon-tokoline.png') }}" class="col-start-2 sm:col-start-1 self-end" alt="">
-     <h2 class="text-bold sm:col-span-4 col-start-3 sm:col-start-2 sm:col-end-3">TokoLine</h2>
+     class="bg-[#70dd28] py-2 sm:px-4 pl-0 ml-0  grid gap-5 place-items-center text-[#234a0a] grid-cols-[repeat(5,20%)] sm:grid-cols-[80px_auto_1fr_1fr_auto]">
+     <img src="{{ asset('images/icon-tokoline.png') }}" class="col-start-2 sm:col-start-1 self-end opacity-[85%]"
+         alt="">
+     <h2 class="font-bold sm:col-span-4 col-start-3 sm:col-start-2 sm:col-end-3 text-[#0b4053b8] underline">TokoLine</h2>
      <div
          class="w-[100%] flex justify-end gap-3 sm:justify-around sm:gap-0 col-start-1 col-end-4 md:col-start-3 md:col-end-4 sm:col-start-1 sm:col-end-3">
          <select class=" bg-transparent" name="kategori" id="">

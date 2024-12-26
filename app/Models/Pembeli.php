@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Models;
-
 // use Illuminate\Database\Eloquent\Model;
 namespace App\Models;
 
@@ -11,7 +9,7 @@ class Pembeli extends Auth
 {
     //
 
-    protected $table='pembeli';
+    protected $table = 'pembeli';
 
     protected $fillable = ['nama', 'username', 'password'];
 

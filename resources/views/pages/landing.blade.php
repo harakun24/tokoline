@@ -11,3 +11,19 @@
         </x-head>
     </div>
 </x-layout>
+
+<script>
+    window.onload = function() {
+        @if (session('req_ok'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Selamat datang {{ $user->nama }}',
+                text: "Berhasil masuk",
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 2200,
+                timerProgressBar: true,
+            })
+        @endif
+    }
+</script>

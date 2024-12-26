@@ -2,17 +2,6 @@
     <x-slot:title>Buat Akun</x-slot:title>
     <x-slot:exclass>grid place-items-center h-[100vh]</x-slot:exclass>
 
-    @if (session('error'))
-        <div class="bg-red-100 text-red-700 p-6 absolute top-0 timed-200">
-            {{ session('error') }}
-        </div>
-        <script>
-            setTimeout(() => {
-                document.querySelector('.timed-200').remove();
-            }, 1800);
-        </script>
-    @endif
-
     <div
         class="bg-white h-70% sm:h-[80%] w-[85%] sm:w-auto sm:aspect-[10/14] rounded-[8px] shadow-lg p-4 overflow-hidden">
         {{-- <h1>hello</h1> --}}
@@ -44,3 +33,39 @@
         </form>
     </div>
 </x-layout>
+
+
+
+<script>
+    window.onload = function() {
+        @if (session('error'))
+
+            Swal.fire({
+                icon: 'error',
+                title: 'gagal mendaftar',
+                text: "{{ session('error') }}",
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 3500,
+                timerProgressBar: true,
+            })
+        @endif
+
+        @if ($errors->any())
+
+            Swal.fire({
+                icon: 'error',
+                title: 'gagal mendaftar',
+                text: `
+                @foreach ($errors->all() as $error)
+                    {{ $error }}
+                @endforeach
+                `,
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 3500,
+                timerProgressBar: true,
+            })
+        @endif
+    }
+</script>

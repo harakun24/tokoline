@@ -44,6 +44,10 @@ return [
             'driver' => 'session',
             'provider' => 'pembeli',
         ],
+        'karyawan' => [
+            'driver' => 'session',
+            'provider' => 'karyawan',
+        ],
     ],
 
     /*
@@ -71,7 +75,11 @@ return [
         'pembeli' => [
             'driver' => 'eloquent',
             'model' => App\Models\Pembeli::class,
-        ]
+        ],
+        'karyawan' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Karyawan::class,
+        ],
 
         // 'users' => [
         //     'driver' => 'database',

@@ -34,18 +34,12 @@ class PembeliController extends Controller
 
     public function register(Request $req)
     {
-        // $reqVal = $req->validate([
-        //     'uname' => 'required|string|unique:pembeli,username|max:30',
-        //     'fullname' => 'required|string|max:255',
-        //     'password' => 'required|min:3|confirmed'
-        // ]);
-        $isExist = Pembeli::where('username', $req->uname)->first();
-        if ($isExist) {
-            return redirect()->back()->with('error', 'username sudah terdaftar, gunakan username lain.');
-        }
-
-        // $reqVal['password'] = Hash::make($reqVal['password']);
-
+        $req['username'] = $req->uname;
+        $req->validate([
+            'username' => 'required|string|unique:pembeli,username|max:12',
+            'fullname' => 'required|string|max:255',
+            'password' => 'required|string|min:3'
+        ]);
         Pembeli::create([
             'username' => $req->uname,
             'nama' => $req->fullname,
@@ -59,17 +53,18 @@ class PembeliController extends Controller
 
     public function auth_login(Request $req)
     {
-        // $reqVal = $req->validate([
-        //     'username' => 'required|string',
-        //     'password' => 'required|string',
-        // ]);
+        $req['username'] = $req->uname;
+        $req->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
         if (Auth::guard('pembeli')->attempt($req->only('username', 'password'))) {
             $req->session()->regenerate();
 
             // session()->getHandler()->destroy(Auth::guard('pembeli')->user()->getRememberToken());
 
-            return redirect()->route('home');
+            return redirect()->route('home')->with('req_ok', true);
         }
 
         return back()->with(['error' => 'username/password salah']);
@@ -95,6 +90,11 @@ class PembeliController extends Controller
     public function update_profile(Request $req, $id)
     {
         $user = Pembeli::findOrFail($id);
+
+        $req->validate([
+            'uname' => 'string|unique:pembeli,username|max:12',
+            'fullname' => 'required|string|max:255',
+        ]);
 
         $user->username = $req->uname;
         $user->nama = $req->fullname;

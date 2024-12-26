@@ -1,35 +1,68 @@
 <?php
 
+use App\Http\Controllers\AdminController as Admin;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PembeliController;
+use App\Http\Controllers\PembeliController as Pembeli;
+use App\Http\Middleware\AdminRole;
+use App\Http\Middleware\isLogin;
 
-// Route::get('/', function () {
-//     return view('pages/landing');
-// });
-
-Route::get('/', [PembeliController::class, 'index'])->name('home');
+Route::get('/', [Pembeli::class, 'index'])->name('home');
 
 Route::prefix('login')->as('login.')->group(function () {
-    Route::get('/', [PembeliController::class, 'form_login'])->name('page');
-    Route::post('/auth', [PembeliController::class, 'auth_login'])->name('auth');
+
+    Route::get('/', [Pembeli::class, 'form_login'])->middleware(isLogin::class . ':pembeli')->name('page');
+
+    Route::post('/auth', [Pembeli::class, 'auth_login'])->name('auth');
 });
 
 Route::prefix('daftar')->as('sign.')->group(function () {
-    Route::get('/', [PembeliController::class, 'form_register'])->name('page');
+    Route::get('/', [Pembeli::class, 'form_register'])->name('page');
 
-    Route::post('/submit', [PembeliController::class, 'register'])->name('submit');
+    Route::post('/submit', [Pembeli::class, 'register'])->name('submit');
 });
 
 Route::prefix('profil')->as('profil.')->group(function () {
-    Route::get('/', [PembeliController::class, 'show_profile'])->name('show');
+    Route::get('/', [Pembeli::class, 'show_profile'])->name('show');
 
-    Route::put('/ubah/{id}', [PembeliController::class, 'update_profile'])->name('update');
+    Route::put('/ubah/{id}', [Pembeli::class, 'update_profile'])->name('update');
 });
 
-Route::post('/logout', [PembeliController::class, 'logout'])->name('logout');
+Route::post('/logout', [Pembeli::class, 'logout'])->name('logout');
+
+Route::prefix('kelola_gudang')->as('kelola.')->group(function () {
+    Route::prefix('login')->as('login.')->group(function () {
+
+        Route::get('/', [Admin::class, 'form_login'])->name('show');
+
+        Route::post('/auth', [Admin::class, 'auth_login'])->name('auth');
+    });
+
+    Route::prefix('add')->as('add.')->group(function () {
+        Route::post('user', [Admin::class, 'add_user'])->name('user');
+    });
+
+    Route::prefix('delete')->as('delete.')->group(function () {
+        Route::delete('user/{id}', [Admin::class, 'delete_user'])->name('user');
+    });
+    Route::prefix('update')->as('update.')->group(function () {
+        Route::put('user/{id}', [Admin::class, 'update_user'])->name('user');
+    });
+
+    Route::prefix('panel')->as('panel.')->group(function () {
+        Route::get('/super', [Admin::class, 'show_super'])->name('super');
+
+        Route::get('/admin', [Admin::class, 'show_admin'])->middleware(AdminRole::class . ':3')->name('admin');
+
+        Route::get('/cs1', [Admin::class, 'show_cs1'])->middleware(AdminRole::class . ':1')->name('cs1');
+
+        Route::get('/cs2', [Admin::class, 'show_cs2'])->middleware(AdminRole::class . ':2')->name('cs2');
+    });
+
+    Route::post('/logout', [Admin::class, 'logout'])->name('logout');
+});
 
 
-// $ar = [endpoint, method, controllerFunction, nameRoute]
+// //$ar = [endpoint, method, controllerFunction, nameRoute]
 
 // function rt($controller, $ar)
 // {
@@ -51,7 +84,7 @@ Route::post('/logout', [PembeliController::class, 'logout'])->name('logout');
 
 // function pembeli()
 // {
-//     return PembeliController::class;
+//     return Pembeli::class;
 // };
 
 // function sub($prefix, $alias, $callback)
