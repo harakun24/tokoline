@@ -41,11 +41,13 @@ Route::prefix('kelola_gudang')->as('kelola.')->group(function () {
 
     Route::prefix('delete')->as('delete.')->group(function () {
         Route::delete('user/{id}', [Admin::class, 'delete_user'])->name('user');
-        Route::delete('kategori/{id}', [Admin::class, 'delete_kategori'])->name('kategori');
+        Route::delete('kategori/{id}', [Admin::class, 'delete_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
+        Route::delete('barang/{id}', [Admin::class, 'delete_barang'])->middleware(AdminRole::class . ':3')->name('barang');
     });
     Route::prefix('update')->as('update.')->group(function () {
         Route::put('user/{id}', [Admin::class, 'update_user'])->name('user');
         Route::put('kategori/{id}', [Admin::class, 'update_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
+        Route::put('barang/{id}', [Admin::class, 'update_barang'])->middleware(AdminRole::class . ':3')->name('barang');
     });
 
     Route::prefix('panel')->as('panel.')->group(function () {

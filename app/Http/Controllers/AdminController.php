@@ -133,14 +133,12 @@ class AdminController extends Controller
     {
         return view('pages.gudang.admin', ['user' => Auth::guard('karyawan')->user()]);
     }
+    // kategori
     public function show_kategori()
     {
         return view('pages.gudang.kategori', ['data' => Kategori::paginate(7), 'user' => Auth::guard('karyawan')->user()]);
     }
-    public function show_barang()
-    {
-        return view('pages.gudang.barang', ['data' => Barang::paginate(7), 'user' => Auth::guard('karyawan')->user(), 'kategori' => Kategori::all()]);
-    }
+
     public function add_kategori(Request $req)
     {
         $req->validate(['nama' => 'required|string|max:12|unique:kategori,nama']);
@@ -166,5 +164,62 @@ class AdminController extends Controller
         $user->delete();
 
         return redirect()->route('kelola.panel.kategori')->with('del', true);
+    }
+
+    // barang
+    public function show_barang()
+    {
+        return view('pages.gudang.barang', ['data' => Barang::paginate(7), 'user' => Auth::guard('karyawan')->user(), 'kategori' => Kategori::all()]);
+    }
+    public function add_barang(Request $req)
+    {
+        $req->validate([
+            'nama' => 'required|string|max:255',
+            'kategori_id' => 'required|exists:kategori,id',
+            'harga' => 'required|numeric',
+            'stok' => 'required|integer',
+            'cover' => 'nullable|image|max:12132',
+        ]);
+        $data = $req->all();
+        if ($req->hasFile('cover')) {
+            $data['cover'] = $req->file('cover')->store('covers', 'public');
+        }
+
+        Barang::create($data);
+
+        return redirect()->route('kelola.panel.barang')->with('add', true);
+    }
+    public function update_barang(Request $req, $id)
+    {
+        $user = Barang::findOrFail($id);
+
+        $req->validate([
+            'nama' => 'required|string|max:255',
+            'kategori_id' => 'required|exists:kategori,id',
+            'harga' => 'required|numeric',
+            'stok' => 'required|integer',
+            'cover' => 'nullable|image|max:12132',
+        ]);
+
+        $data = $req->all();
+        if ($req->hasFile('cover')) {
+            $data['cover'] = $req->file('cover')->store('covers', 'public');
+            $user->cover = $data['cover'];
+        }
+        $user->nama = $data['nama'];
+        $user->kategori_id = $data['kategori_id'];
+        $user->harga = $data['harga'];
+        $user->stok = $data['stok'];
+
+        $user->save();
+
+        return redirect()->back()->with('up', true);
+    }
+    public function delete_barang($id)
+    {
+        $user = Barang::findOrFail($id);
+        $user->delete();
+
+        return redirect()->route('kelola.panel.barang')->with('del', true);
     }
 }
