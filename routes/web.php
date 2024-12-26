@@ -37,6 +37,7 @@ Route::prefix('kelola_gudang')->as('kelola.')->group(function () {
         Route::post('user', [Admin::class, 'add_user'])->name('user');
         Route::post('kategori', [Admin::class, 'add_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
         Route::post('barang', [Admin::class, 'add_barang'])->middleware(AdminRole::class . ':3')->name('barang');
+        Route::post('barang/bulk', [Admin::class, 'import_data'])->middleware(AdminRole::class . ':3')->name('bulk');
     });
 
     Route::prefix('delete')->as('delete.')->group(function () {
@@ -55,6 +56,7 @@ Route::prefix('kelola_gudang')->as('kelola.')->group(function () {
         Route::get('/admin', [Admin::class, 'show_admin'])->middleware(AdminRole::class . ':3')->name('admin');
         Route::get('/kategori', [Admin::class, 'show_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
         Route::get('/barang', [Admin::class, 'show_barang'])->middleware(AdminRole::class . ':3')->name('barang');
+        Route::get('/barang/download', [Admin::class, 'bulk_template'])->middleware(AdminRole::class . ':3')->name('template');
         Route::get('/cs1', [Admin::class, 'show_cs1'])->middleware(AdminRole::class . ':1')->name('cs1');
         Route::get('/cs2', [Admin::class, 'show_cs2'])->middleware(AdminRole::class . ':2')->name('cs2');
     });

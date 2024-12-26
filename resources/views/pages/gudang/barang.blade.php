@@ -153,6 +153,16 @@
                 timer: 1800,
                 timerProgressBar: true,
             })
+        @elseif (session('bulk'))
+            Swal.fire({
+                icon: 'success',
+                title: 'berhasil menambah data',
+                text: "data ditambah secara batch",
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 1800,
+                timerProgressBar: true,
+            })
         @endif
     }
 
@@ -200,6 +210,26 @@
     }
 
     function add_item_bulk() {
+        Swal.fire({
+            showConfirmButton: false,
+            html: `
+               <form action="{{ route('kelola.add.bulk') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="grid grid-cols-[auto_1fr] gap-3 place-items-center">
+                <a href="{{ route('kelola.panel.template') }}" target='_blank' class="py-2 px-3 m-2 rounded-[5px] border-2 col-span-2">download template</a>
+         <label for="cover">Excel file</label>
+                <input type="file" name="excel" id="cover"
+                    class="focus:outline-none rounded-[5px] py-3 px-4 border-2 border-black focus:border-[#1acc3e] w-[65%]">
 
+
+                    <div class="col-span-2 w-[80%] flex flex-col items-stretch mt-[5%]">
+                    <button
+                        class="rounded-[5px] bg-[#7ac607] hover:bg-[#70dd28] shadow-sm py-4 font-bold text-[#004000]">tambah</button>
+
+                </div>
+            </div>
+        </form>
+            `
+        });
     }
 </script>

@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Hash;
 
 use App\Models\Karyawan;
 use App\Models\Kategori;
+use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class AdminController extends Controller
 {
@@ -169,7 +174,7 @@ class AdminController extends Controller
     // barang
     public function show_barang()
     {
-        return view('pages.gudang.barang', ['data' => Barang::paginate(7), 'user' => Auth::guard('karyawan')->user(), 'kategori' => Kategori::all()]);
+        return view('pages.gudang.barang', ['data' => Barang::paginate(6), 'user' => Auth::guard('karyawan')->user(), 'kategori' => Kategori::all()]);
     }
     public function add_barang(Request $req)
     {
@@ -221,5 +226,74 @@ class AdminController extends Controller
         $user->delete();
 
         return redirect()->route('kelola.panel.barang')->with('del', true);
+    }
+    public function bulk_template()
+    {
+        $kategori = Kategori::pluck('nama')->toArray();
+
+        $spreadsheet = new Spreadsheet();
+
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setCellValue('A1', 'nama');
+        $sheet->setCellValue('B1', 'kategori');
+        $sheet->setCellValue('C1', 'harga');
+        $sheet->setCellValue('D1', 'stok');
+
+        $this->dropDown($sheet, 'B2:B10000', $kategori);
+
+        $file = new Xlsx($spreadsheet);
+
+        $path = storage_path('app/public/template.xlsx');
+
+        $file->save($path);
+
+        return response()->download($path)->deleteFileAfterSend(true);
+    }
+    private function dropDown(Worksheet $sheet, $range, $opt)
+    {
+        // $drop = $sheet->getCell('B2:B10000')->getDataValidation();
+
+        $drop = new DataValidation();
+
+        $drop->setType(DataValidation::TYPE_LIST);
+        $drop->setErrorStyle(DataValidation::STYLE_STOP);
+        $drop->setAllowBlank(false);
+        $drop->setShowDropDown(true);
+        $drop->setFormula1('"' . implode(',', $opt) . '"');
+
+        [$startCell, $endCell] = explode(':', $range);
+        [$startCol, $startRow] = sscanf($startCell, '%[A-Z]%d');
+        [$endCol, $endRow] = sscanf($endCell, '%[A-Z]%d');
+
+        for ($row = $startRow; $row <= $endRow; $row++) {
+            $cell = $startCol . $row;
+            $sheet->getCell($cell)->setDataValidation(clone $drop);
+        }
+    }
+    public function import_data(Request $req)
+    {
+        $req->validate(['excel' => 'required|mimes:xlsx,xls,csv|max:12082']);
+
+        $file = $req->file('excel');
+        $spread = IOFactory::load($file);
+        $sheet = $spread->getActiveSheet();
+        $data = [];
+        foreach ($sheet->getRowIterator() as $rowIndex => $row) {
+            if ($rowIndex == 1)
+                continue;
+            $nama = $sheet->getCell('A' . $rowIndex)->getValue();
+            $kategori = Kategori::where('nama', $sheet->getCell('B' . $rowIndex)->getValue())->first();
+            $harga = $sheet->getCell('C' . $rowIndex)->getValue();
+            $stok = $sheet->getCell('D' . $rowIndex)->getValue();
+            $data[] = [
+                'harga' => $harga,
+                'kategori_id' => $kategori->id,
+                'nama' => $nama,
+                'stok' => $stok,
+            ];
+        }
+        Barang::insert($data);
+        return redirect()->back()->with('bulk', true);
     }
 }
