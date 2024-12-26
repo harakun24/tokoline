@@ -9,21 +9,17 @@ use App\Http\Middleware\isLogin;
 Route::get('/', [Pembeli::class, 'index'])->name('home');
 
 Route::prefix('login')->as('login.')->group(function () {
-
     Route::get('/', [Pembeli::class, 'form_login'])->middleware(isLogin::class . ':pembeli')->name('page');
-
     Route::post('/auth', [Pembeli::class, 'auth_login'])->name('auth');
 });
 
 Route::prefix('daftar')->as('sign.')->group(function () {
     Route::get('/', [Pembeli::class, 'form_register'])->name('page');
-
     Route::post('/submit', [Pembeli::class, 'register'])->name('submit');
 });
 
 Route::prefix('profil')->as('profil.')->group(function () {
     Route::get('/', [Pembeli::class, 'show_profile'])->name('show');
-
     Route::put('/ubah/{id}', [Pembeli::class, 'update_profile'])->name('update');
 });
 
@@ -39,22 +35,25 @@ Route::prefix('kelola_gudang')->as('kelola.')->group(function () {
 
     Route::prefix('add')->as('add.')->group(function () {
         Route::post('user', [Admin::class, 'add_user'])->name('user');
+        Route::post('kategori', [Admin::class, 'add_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
+        Route::post('barang', [Admin::class, 'add_barang'])->middleware(AdminRole::class . ':3')->name('barang');
     });
 
     Route::prefix('delete')->as('delete.')->group(function () {
         Route::delete('user/{id}', [Admin::class, 'delete_user'])->name('user');
+        Route::delete('kategori/{id}', [Admin::class, 'delete_kategori'])->name('kategori');
     });
     Route::prefix('update')->as('update.')->group(function () {
         Route::put('user/{id}', [Admin::class, 'update_user'])->name('user');
+        Route::put('kategori/{id}', [Admin::class, 'update_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
     });
 
     Route::prefix('panel')->as('panel.')->group(function () {
         Route::get('/super', [Admin::class, 'show_super'])->name('super');
-
         Route::get('/admin', [Admin::class, 'show_admin'])->middleware(AdminRole::class . ':3')->name('admin');
-
+        Route::get('/kategori', [Admin::class, 'show_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
+        Route::get('/barang', [Admin::class, 'show_barang'])->middleware(AdminRole::class . ':3')->name('barang');
         Route::get('/cs1', [Admin::class, 'show_cs1'])->middleware(AdminRole::class . ':1')->name('cs1');
-
         Route::get('/cs2', [Admin::class, 'show_cs2'])->middleware(AdminRole::class . ':2')->name('cs2');
     });
 
