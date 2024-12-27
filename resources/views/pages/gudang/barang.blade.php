@@ -3,10 +3,8 @@
     <div class="col-span-2 flex gap-2">
         <a href="{{ route('kelola.panel.admin') }}" class="border p-2 px-4 rounded-[5px] bg-[#9bf498] text-[#063e22]"> <i
                 class="fa fa-arrow-left"></i> kembali</a>
-        <button class="border p-2 px-4 rounded-[5px] bg-[#ff1535] text-[#3e0606]" onclick="add_item()">tambah <i
-                class="fa fa-plus"></i></button>
-        <button class="border p-2 px-4 rounded-[5px] bg-[#e87f15] text-[#3e0606]" onclick="add_item_bulk()">bulk <i
-                class="fa fa-plus"></i></button>
+        <button class="border p-2 px-4 rounded-[5px] bg-[#ff1535] text-[#3e0606]" onclick="add_item()">tambah</button>
+        <button class="border p-2 px-4 rounded-[5px] bg-[#e87f15] text-[#3e0606]" onclick="add_item_bulk()">bulk </button>
         <form action="{{ route('kelola.panel.filter.barang') }}" method="GET"
             class="border grid place-items-center px-2">
             <input type="text" name="query" placeholder="cari" />
@@ -90,10 +88,10 @@
         </select>
 
          <label for="harga">harga</label>
-                <input type="number" name="harga" required id="harga" placeholder="Contoh: 10000"
+                <input type="number" name="harga" required id="harga" placeholder="Contoh: 10000" min="500"
                     class="focus:outline-none rounded-[5px] py-3 px-4 border-2 border-black focus:border-[#1acc3e]">
          <label for="stok">stok</label>
-                <input type="number" name="stok" required id="harga" placeholder="Contoh: 7"
+                <input type="number" name="stok" required id="harga" placeholder="Contoh: 7" min="1"
                     class="focus:outline-none rounded-[5px] py-3 px-4 border-2 border-black focus:border-[#1acc3e]">
          <label for="cover">gambar</label>
                 <input type="file" name="cover" id="cover" placeholder="Boleh dikosongkan"
@@ -174,7 +172,7 @@
         Swal.fire({
             showConfirmButton: false,
             html: `
-               <form action="${dest}" method="POST">
+               <form action="${dest}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div class="grid grid-cols-[auto_1fr] gap-3 place-items-center">
@@ -192,10 +190,10 @@
         </select>
 
          <label for="harga">harga</label>
-                <input type="number" name="harga" required  value="${data.harga}" id="harga" placeholder="Contoh: 10000"
+                <input type="number" name="harga" required  value="${data.harga}" id="harga" placeholder="Contoh: 10000" min="500"
                     class="focus:outline-none rounded-[5px] py-3 px-4 border-2 border-black focus:border-[#1acc3e]">
          <label for="stok">stok</label>
-                <input type="number" name="stok" required  value="${data.stok}" id="harga" placeholder="Contoh: 7"
+                <input type="number" name="stok" required  value="${data.stok}" id="harga" placeholder="Contoh: 7" min="1"
                     class="focus:outline-none rounded-[5px] py-3 px-4 border-2 border-black focus:border-[#1acc3e]">
          <label for="cover">gambar</label>
                 <input type="file" name="cover" id="cover" placeholder="Boleh dikosongkan"

@@ -43,21 +43,24 @@
                                 ) }}
                             </td>
                             <td class="border text-center py-1">{{ $d->status }}</td>
-                            <td>
-                                <div class="p-2 place-items-center flex justify-center gap-2">
+                            @if ($d->status != 'dibatalkan' && $d->status != 'selesai')
+                                <td>
+                                    <div class="p-2 place-items-center flex justify-center gap-2">
 
-                                    <form action="{{ route('keranjang.dec', $d->id) }}" method="POST">
-                                        @csrf
-                                        <button class="border p-2 px-3 bg-[#f55454] rounded-[5px] text-[#540505]"
-                                            type="submit">batalkan <i class="fa fa-minus"></i></button>
-                                    </form>
-                                    <form action="{{ route('keranjang.add', $d->id) }}" method="POST">
-                                        @csrf
-                                        <button class="border p-2 px-3 bg-[#29f165] rounded-[5px] text-[#1e4f30]"
-                                            type="submit"> unggah bukti pembayaran<i class="fa fa-plus"></i></button>
-                                    </form>
-                                </div>
-                            </td>
+                                        <form action="{{ route('transaksi.remove', $d->id) }}" method="POST">
+                                            @csrf
+                                            <button class="border p-2 px-3 bg-[#f55454] rounded-[5px] text-[#540505]"
+                                                type="submit">batalkan <i class="fa fa-minus"></i></button>
+                                        </form>
+                                        <form action="{{ route('keranjang.add', $d->id) }}" method="POST">
+                                            @csrf
+                                            <button class="border p-2 px-3 bg-[#29f165] rounded-[5px] text-[#1e4f30]"
+                                                type="submit"> unggah bukti pembayaran<i
+                                                    class="fa fa-plus"></i></button>
+                                        </form>
+                                    </div>
+                                </td>
+                            @endif
                         </tr>
                     @empty
                         <tr class="border">

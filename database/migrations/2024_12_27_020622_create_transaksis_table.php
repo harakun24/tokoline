@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('pembeli_id')->constrained('pembeli')->onDelete('cascade');
             $table->foreignId('barang_id')->constrained('barang')->onDelete('cascade');
             $table->integer('jumlah');
-            $table->enum('status', ['menunggu', 'pengepakan', 'dikirim', 'selesai']);
+            $table->enum('status', ['menunggu', 'pengemasan', 'pengiriman', 'perjalanan', 'sampai', 'dibatalkan']);
             $table->string('bukti')->nullable();
             $table->timestamps();
         });

@@ -23,10 +23,10 @@
                     class=" py-2 px-3 border-2 border-[#099877] rounded-[5px] hover:bg-[#09daa9] bg-[#099877] text-white"><i
                         class="fa fa-shopping-cart px-2"></i>
                     keranjang</a>
-                <button
+                <a href={{ route('transaksi.show') }}
                     class=" py-2 px-3 border-2 border-[#08a610] rounded-[5px] hover:text-[#08a610] bg-[#08a610] hover:bg-transparent text-white"><i
                         class="fa fa-receipt px-2"></i>
-                    transaksi</button>
+                    transaksi</a>
             </div>
             <div class="col-span-3 flex justify-end">
                 <button onclick="openEdit()"

@@ -6,6 +6,7 @@ use App\Models\Barang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\Karyawan;
 use App\Models\Kategori;
@@ -191,6 +192,8 @@ class AdminController extends Controller
     // barang
     public function show_barang()
     {
+        if (Kategori::all()->count() == 0)
+            return redirect()->route('kelola.panel.kategori')->with('null', true);
         return view('pages.gudang.barang', ['data' => Barang::paginate(6), 'user' => Auth::guard('karyawan')->user(), 'kategori' => Kategori::all()]);
     }
     public function filter_barang(Request $req)
@@ -232,8 +235,12 @@ class AdminController extends Controller
             'cover' => 'nullable|image|max:12132',
         ]);
 
-        $data = $req->all();
+        $data = $req->only(['nama', 'kategori_id', 'harga', 'stok']);
+
         if ($req->hasFile('cover')) {
+            if ($user->cover && Storage::disk('public')->exists($user->cover)) {
+                Storage::disk('public')->delete($user->cover);
+            }
             $data['cover'] = $req->file('cover')->store('covers', 'public');
             $user->cover = $data['cover'];
         }
@@ -251,6 +258,9 @@ class AdminController extends Controller
         $user = Barang::findOrFail($id);
         $user->delete();
 
+        if ($user->cover && Storage::disk('public')->exists($user->cover)) {
+            Storage::disk('public')->delete($user->cover);
+        }
         return redirect()->route('kelola.panel.barang')->with('del', true);
     }
     public function bulk_template()
@@ -270,7 +280,7 @@ class AdminController extends Controller
 
         $file = new Xlsx($spreadsheet);
 
-        $path = storage_path('app/public/template.xlsx');
+        $path = storage_path('app/public/template-' . time() . '.xlsx');
 
         $file->save($path);
 
@@ -309,7 +319,16 @@ class AdminController extends Controller
             if ($rowIndex == 1)
                 continue;
             $nama = $sheet->getCell('A' . $rowIndex)->getValue();
+            $nama_kategori
+                = $sheet->getCell('B' . $rowIndex)->getValue();
+
+            $temp = Kategori::where('nama', $nama_kategori)->get();
+            if ($temp->count() == 0) {
+                echo $nama_kategori;
+                Kategori::create(['nama' => $sheet->getCell('B' . $rowIndex)->getValue()]);
+            }
             $kategori = Kategori::where('nama', $sheet->getCell('B' . $rowIndex)->getValue())->first();
+
             $harga = $sheet->getCell('C' . $rowIndex)->getValue();
             $stok = $sheet->getCell('D' . $rowIndex)->getValue();
             $data[] = [

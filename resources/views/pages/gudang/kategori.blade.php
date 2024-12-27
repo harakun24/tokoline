@@ -102,6 +102,16 @@
                 timer: 1800,
                 timerProgressBar: true,
             })
+        @elseif (session('null'))
+            Swal.fire({
+                icon: 'error',
+                title: 'kategori kosong',
+                text: "tambahkan minimal 1 kategori",
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 2100,
+                timerProgressBar: true,
+            })
         @elseif (session('del'))
             Swal.fire({
                 icon: 'success',

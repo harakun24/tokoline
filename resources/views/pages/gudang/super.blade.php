@@ -3,8 +3,8 @@
     <x-slot:exclass>flex justify-start flex-col items-center items-start h-[100vh] grid-cols-1 gap-4</x-slot:exclass>
 
     <div class="bg-white min-w-[80%] mt-[20px] rounded-[5px] grid grid-cols-[auto_1fr_auto] p-4 gap-2">
-        <button class="py-2 px-4 rounded-[5px] border-2" style="background: #0bea1e;color:#04430f">tambah <i
-                onclick="add_user()" class="fa fa-plus"></i></button>
+        <button class="py-2 px-4 rounded-[5px] border-2" style="background: #0bea1e;color:#04430f"
+            onclick="add_user()">tambah <i class="fa fa-plus"></i></button>
         <h3 class="self-center text-center">Kelola User</h3>
 
         <form action="{{ route('kelola.logout') }}" method="POST">

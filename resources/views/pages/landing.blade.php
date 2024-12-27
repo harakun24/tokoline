@@ -1,6 +1,5 @@
 <x-layout>
     <x-slot:title>Toko Online Sederhana</x-slot:title>
-
     <div class="grid grid-cols-1 grid-rows-[auto_auto]">
         <x-head>
             @if (isset($user))
@@ -22,25 +21,30 @@
                         <h4>{{ $b->nama }}</h4>
                         <span class="opacity-[70%]">{{ $b->kategori->nama }}</span>
                     </div>
-                    <div class="flex justify-end gap-2">
-                        @if (isset($user))
-                            <form action="{{ route('keranjang.add', $b->id) }}" method="POST">
-                                @csrf
+                    <div class="flex justify-between items-center gap-2">
+                        <div class="text-[#a55f0e]">Rp {{ number_format($b->harga, 0, ',', '.') }}</div>
+                        <div class="flex">
 
-                                <button class="p-2 text-[#5d9f06]"><i class="fa fa-shopping-cart"></i></button>
-                            </form>
-                        @else
-                            <a href="{{ route('login.page') }}" class="p-2 text-[#5d9f06]"><i
-                                    class="fa fa-shopping-cart"></i></a>
+                            @if (isset($user))
+                                <form action="{{ route('keranjang.add', $b->id) }}" method="POST">
+                                    @csrf
 
-                            <a href="{{ route('login.page') }}" class="p-2 text-[#d41b24]"><i
-                                    class="fa fa-heart"></i></a>
-                        @endif
-                        <a href="#" class="p-2 text-[#d41b24]"><i class="fa fa-heart"></i></a>
+                                    <button class="p-2 text-[#5d9f06]"><i class="fa fa-shopping-cart"></i></button>
+                                </form>
+                                <a href="#" class="p-2 text-[#d41b24]"><i class="fa fa-heart"></i></a>
+                            @else
+                                <a href="{{ route('login.page') }}" class="p-2 text-[#5d9f06]"><i
+                                        class="fa fa-shopping-cart"></i></a>
+
+                                <a href="{{ route('login.page') }}" class="p-2 text-[#d41b24]"><i
+                                        class="fa fa-heart"></i></a>
+                            @endif
+                        </div>
+                        {{-- <a href="#" class="p-2 text-[#d41b24]"><i class="fa fa-heart"></i></a> --}}
                     </div>
                 </div>
             @empty
-                <h4>Belum ada barang yang dijual.</h4>
+                <h4 class="text-center col-span-6">Belum ada barang yang dijual.</h4>
             @endforelse
             <div class="col-2 sm:col-span-3 md:col-span-6 mt-2">
                 {{ $barang->links() }}

@@ -22,9 +22,22 @@ class PembeliController extends Controller
         if (Auth::guard('pembeli')->check()) {
             $user = Auth::guard('pembeli')->user();
 
-            return view('pages.landing', ['user' => $user, 'barang' => $barang]);
+            return view('pages.landing', ['user' => $user, 'barang' => $barang, 'cari' => '']);
         }
-        return view('pages.landing', ['barang' => $barang]);
+        return view('pages.landing', ['barang' => $barang, 'cari' => '']);
+    }
+
+    public function filter_index(Request $req)
+    {
+        $cari = $req->input('query');
+
+        $barang = Barang::with('kategori')->where('nama', 'like', '%' . $cari . '%')->paginate(6);
+        if (Auth::guard('pembeli')->check()) {
+            $user = Auth::guard('pembeli')->user();
+
+            return view('pages.landing', ['user' => $user, 'barang' => $barang, 'cari' => '']);
+        }
+        return view('pages.landing', ['barang' => $barang, 'cari' => $cari]);
     }
 
     public function form_login()
@@ -201,5 +214,12 @@ class PembeliController extends Controller
         Keranjang::where('pembeli_id', $transaksi->pembeli_id)->delete();
 
         return redirect()->route('transaksi.show');
+    }
+    function transaksi_remove(Request $req, $id)
+    {
+        $transaksi = Transaksi::findOrFail($id);
+        $transaksi->status = 'dibatalkan';
+        $transaksi->save();
+        return redirect()->route('transaksi.show')->with('del', true);
     }
 }

@@ -19,7 +19,10 @@
      </div>
      <div class=" relative col-start-1 col-end-5 md:col-start-4 md:col-end-5 sm:col-start-3 sm:col-end:5">
          {{-- search --}}
-         <input type="text" class="outline-none  rounded-[5px] p-2 w-[100%] peer" placeholder="Cari barang">
+         <form action="{{ route('search') }}">
+             <input type="text" class="outline-none  rounded-[5px] p-2 w-[100%] peer" placeholder="Cari barang"
+                 name="query">
+         </form>
          <i
              class="fa fa-search absolute top-[50%] -translate-y-[50%] -translate-x-[100%] right-0 peer-placeholder-shown:opacity-100 opacity-0"></i>
      </div>

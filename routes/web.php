@@ -7,6 +7,7 @@ use App\Http\Middleware\AdminRole;
 use App\Http\Middleware\isLogin;
 
 Route::get('/', [Pembeli::class, 'index'])->name('home');
+Route::get('/search', [Pembeli::class, 'filter_index'])->name('search');
 
 Route::prefix('login')->as('login.')->group(function () {
     Route::get('/', [Pembeli::class, 'form_login'])->middleware(isLogin::class . ':pembeli')->name('page');
@@ -79,6 +80,7 @@ Route::prefix('keranjang')->as('keranjang.')->group(function () {
 Route::prefix('transaksi')->as('transaksi.')->group(function () {
     Route::get('/', [Pembeli::class, 'transaksi_show'])->name('show');
     Route::post('/checkout', [Pembeli::class, 'transaksi_create'])->name('check');
+    Route::post('/batal/{id}', [Pembeli::class, 'transaksi_remove'])->name('remove');
 });
 
 
