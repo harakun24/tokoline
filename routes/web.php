@@ -71,7 +71,14 @@ Route::prefix('kelola_gudang')->as('kelola.')->group(function () {
 });
 
 Route::prefix('keranjang')->as('keranjang.')->group(function () {
+    Route::get('/', [Pembeli::class, 'show_cart'])->name('show');
     Route::post('/tambah/{barang_id}', [Pembeli::class, 'add_cart'])->name('add');
+    Route::post('/kurang/{barang_id}', [Pembeli::class, 'decreased_cart'])->name('dec');
+});
+
+Route::prefix('transaksi')->as('transaksi.')->group(function () {
+    Route::get('/', [Pembeli::class, 'transaksi_show'])->name('show');
+    Route::post('/checkout', [Pembeli::class, 'transaksi_create'])->name('check');
 });
 
 

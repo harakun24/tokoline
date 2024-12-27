@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\Pembeli;
 use App\Models\Keranjang;
-
+use App\Models\Transaksi;
+use App\Models\TransaksiDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -88,7 +89,8 @@ class PembeliController extends Controller
             $user = Auth::guard('pembeli')->user();
 
             return view('pages.profil', ['user' => $user]);
-        }
+        } else
+            return redirect()->route('home');
     }
     public function update_profile(Request $req, $id)
     {
@@ -152,5 +154,52 @@ class PembeliController extends Controller
 
 
         return redirect()->back()->with('dec-cart', true);
+    }
+
+    function show_cart()
+    {
+        $user = Auth::guard('pembeli')->user();
+        $keranjang = Keranjang::where('pembeli_id', $user->id)->get();
+        if (Auth::guard('pembeli')->check())
+            return view('pages.keranjang',  ['user' => Auth::guard('pembeli')->user(), 'data' => $keranjang, 'total' => $keranjang->sum(function ($e) {
+                return $e->jumlah * $e->barang->harga;
+            })]);
+        else
+            return redirect()->route('home');
+    }
+    function transaksi_showFor($id)
+    {
+        $transaksi = Transaksi::with('transaksiDetail.barang')->findOrFail($id);
+
+        return view('transaksi', ['transaksi' => $transaksi]);
+    }
+    function transaksi_show()
+    {
+        $transaksi = Transaksi::with('transaksiDetail.barang')->where('pembeli_id', Auth::guard('pembeli')->user()->id)->get();
+
+        return view('pages.transaksi', ['data' => $transaksi, 'user' => Auth::guard('pembeli')->user()]);
+    }
+    function transaksi_create()
+    {
+        $keranjang = Keranjang::where('pembeli_id', Auth::guard('pembeli')->user()->id)->get();
+
+        if ($keranjang->count() == 0)
+            return redirect()->route('keranjang.show');
+
+        $transaksi = Transaksi::create([
+            'pembeli_id' => Auth::guard('pembeli')->user()->id,
+            'status' => 'menunggu'
+        ]);
+
+        foreach ($keranjang as $k) {
+            TransaksiDetail::create([
+                'transaksi_id' => $transaksi->id,
+                'barang_id' => $k->barang->id,
+                'jumlah' => $k->jumlah
+            ]);
+        }
+        Keranjang::where('pembeli_id', $transaksi->pembeli_id)->delete();
+
+        return redirect()->route('transaksi.show');
     }
 }

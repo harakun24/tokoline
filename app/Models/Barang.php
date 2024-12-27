@@ -17,6 +17,10 @@ class Barang extends Model
 
     public function transaksi()
     {
-        return $this->belongsToMany(Transaksi::class, 'transaksi_barang')->withPivot('jumlah')->withTimestamps();
+        return $this->belongsToMany(Transaksi::class, 'transaksi_detail')->withPivot('jumlah')->withTimestamps();
+    }
+    public function keranjang()
+    {
+        return $this->hasMany(Keranjang::class);
     }
 }

@@ -10,8 +10,13 @@ class Transaksi extends Model
     protected $table = 'transaksi';
 
     protected $fillable = ['pembeli_id', 'status', 'bukti'];
-    public function barang()
+
+    public function pembeli()
     {
-        return $this->belongsToMany(Barang::class, 'transaksi_baang')->withPivot('jumlah')->withTimestamps();
+        return $this->belongsTo(Pembeli::class);
+    }
+    public function transaksiDetail()
+    {
+        return $this->hasMany(TransaksiDetail::class);
     }
 }

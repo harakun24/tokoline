@@ -19,12 +19,12 @@
                     class="bg-transparent py-2 px-3 border-2 border-[#970b0b] rounded-[5px] text-red-700 hover:bg-[#970b0b] hover:text-white"><i
                         class="fa fa-heart px-2"></i>
                     favorit</button>
-                <button
-                    class="bg-transparent py-2 px-3 border-2 border-[#099877] rounded-[5px] hover:bg-[#09daa9] bg-[#099877] text-white"><i
+                <a href="{{ route('keranjang.show') }}"
+                    class=" py-2 px-3 border-2 border-[#099877] rounded-[5px] hover:bg-[#09daa9] bg-[#099877] text-white"><i
                         class="fa fa-shopping-cart px-2"></i>
-                    keranjang</button>
+                    keranjang</a>
                 <button
-                    class="bg-transparent py-2 px-3 border-2 border-[#08a610] rounded-[5px] hover:text-[#08a610] bg-[#08a610] hover:bg-transparent text-white"><i
+                    class=" py-2 px-3 border-2 border-[#08a610] rounded-[5px] hover:text-[#08a610] bg-[#08a610] hover:bg-transparent text-white"><i
                         class="fa fa-receipt px-2"></i>
                     transaksi</button>
             </div>

@@ -1,8 +1,14 @@
  <div
      class="bg-[#70dd28] py-2 sm:px-4 pl-0 ml-0  grid gap-5 place-items-center text-[#234a0a] grid-cols-[repeat(5,20%)] sm:grid-cols-[80px_auto_1fr_1fr_auto]">
-     <img src="{{ asset('images/icon-tokoline.png') }}" class="col-start-2 sm:col-start-1 self-end opacity-[85%]"
-         alt="">
-     <h2 class="font-bold sm:col-span-4 col-start-3 sm:col-start-2 sm:col-end-3 text-[#0b4053b8] underline">TokoLine</h2>
+     <a href="{{ route('home') }}">
+
+         <img src="{{ asset('images/icon-tokoline.png') }}" class="col-start-2 sm:col-start-1 self-end opacity-[85%]"
+             alt="">
+     </a>
+     <a href="{{ route('home') }}">
+         <h2 class="font-bold sm:col-span-4 col-start-3 sm:col-start-2 sm:col-end-3 text-[#0b4053b8] underline">TokoLine
+         </h2>
+     </a>
      <div
          class="w-[100%] flex justify-end gap-3 sm:justify-around sm:gap-0 col-start-1 col-end-4 md:col-start-3 md:col-end-4 sm:col-start-1 sm:col-end-3">
          <select class=" bg-transparent" name="kategori" id="">
@@ -58,7 +64,7 @@
              </script>
 
              {{-- keranjang --}}
-             <a href="#"> <i class="fa fa-shopping-cart p-1"></i> Cart</a>
+             <a href="{{ route('keranjang.show') }}"> <i class="fa fa-shopping-cart p-1"></i> Cart</a>
          @else
              {{-- <h3></h3> --}}
              <a href="{{ route('login.page') }}"> <i class="fa-regular fa-user p-1"></i> Masuk</a>
