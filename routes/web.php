@@ -25,7 +25,7 @@ Route::prefix('profil')->as('profil.')->group(function () {
 
 Route::post('/logout', [Pembeli::class, 'logout'])->name('logout');
 
-Route::prefix('kelola_gudang')->as('kelola.')->group(function () {
+Route::prefix('kelola_barang')->as('kelola.')->group(function () {
     Route::get('/', function () {
         return redirect()->route('kelola.login.show');
     });
