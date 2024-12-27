@@ -26,6 +26,9 @@ Route::prefix('profil')->as('profil.')->group(function () {
 Route::post('/logout', [Pembeli::class, 'logout'])->name('logout');
 
 Route::prefix('kelola_gudang')->as('kelola.')->group(function () {
+    Route::get('/', function () {
+        return redirect()->route('kelola.login.show');
+    });
     Route::prefix('login')->as('login.')->group(function () {
 
         Route::get('/', [Admin::class, 'form_login'])->name('show');
@@ -53,9 +56,12 @@ Route::prefix('kelola_gudang')->as('kelola.')->group(function () {
 
     Route::prefix('panel')->as('panel.')->group(function () {
         Route::get('/super', [Admin::class, 'show_super'])->name('super');
+        Route::get('/super/cari', [Admin::class, 'filter_admin'])->name('filter.super');
         Route::get('/admin', [Admin::class, 'show_admin'])->middleware(AdminRole::class . ':3')->name('admin');
         Route::get('/kategori', [Admin::class, 'show_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
         Route::get('/barang', [Admin::class, 'show_barang'])->middleware(AdminRole::class . ':3')->name('barang');
+        Route::get('/kategori/cari', [Admin::class, 'filter_kategori'])->middleware(AdminRole::class . ':3')->name('filter.kategori');
+        Route::get('/barang/cari', [Admin::class, 'filter_barang'])->middleware(AdminRole::class . ':3')->name('filter.barang');
         Route::get('/barang/download', [Admin::class, 'bulk_template'])->middleware(AdminRole::class . ':3')->name('template');
         Route::get('/cs1', [Admin::class, 'show_cs1'])->middleware(AdminRole::class . ':1')->name('cs1');
         Route::get('/cs2', [Admin::class, 'show_cs2'])->middleware(AdminRole::class . ':2')->name('cs2');

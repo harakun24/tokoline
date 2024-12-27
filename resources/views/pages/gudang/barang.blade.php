@@ -7,6 +7,10 @@
                 class="fa fa-plus"></i></button>
         <button class="border p-2 px-4 rounded-[5px] bg-[#e87f15] text-[#3e0606]" onclick="add_item_bulk()">bulk <i
                 class="fa fa-plus"></i></button>
+        <form action="{{ route('kelola.panel.filter.barang') }}" method="GET"
+            class="border grid place-items-center px-2">
+            <input type="text" name="query" placeholder="cari" />
+        </form>
     </div>
     <h3>barang</h3>
     <table class="col-span-3">
@@ -200,7 +204,7 @@
 
                     <div class="col-span-2 w-[80%] flex flex-col items-stretch mt-[5%]">
                     <button
-                        class="rounded-[5px] bg-[#7ac607] hover:bg-[#70dd28] shadow-sm py-4 font-bold text-[#004000]">tambah</button>
+                        class="rounded-[5px] bg-[#7ac607] hover:bg-[#70dd28] shadow-sm py-4 font-bold text-[#004000]">ubah</button>
 
                 </div>
             </div>

@@ -12,6 +12,10 @@
             <button class="col-3 py-2 px-4 rounded-[5px] border-2" style="background: #f44c35;color:#630909">keluar <i
                     class="fa fa-power-off"></i></button>
         </form>
+        <form action="{{ route('kelola.panel.filter.super') }}" method="GET"
+            class="col-span-3 border grid place-items-center py-2 px-2">
+            <input type="text" name="query" class="w-[100%]" placeholder="cari" />
+        </form>
         <table class="col-span-3">
             <thead>
                 <tr>

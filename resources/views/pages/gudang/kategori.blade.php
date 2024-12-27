@@ -5,6 +5,10 @@
                 class="fa fa-arrow-left"></i> kembali</a>
         <button class="border p-2 px-4 rounded-[5px] bg-[#ff1535] text-[#3e0606]" onclick="add_item()">tambah <i
                 class="fa fa-plus"></i></button>
+        <form action="{{ route('kelola.panel.filter.kategori') }}" method="GET"
+            class="border grid place-items-center px-2">
+            <input type="text" name="query" placeholder="cari" />
+        </form>
     </div>
     <h3>kategori</h3>
     <table class="col-span-3">
