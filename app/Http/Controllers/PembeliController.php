@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Barang;
 use App\Models\Pembeli;
+use App\Models\Keranjang;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,12 +17,13 @@ class PembeliController extends Controller
 
     public function index()
     {
+        $barang = Barang::with('kategori')->paginate(6);
         if (Auth::guard('pembeli')->check()) {
             $user = Auth::guard('pembeli')->user();
 
-            return view('pages.landing', ['user' => $user]);
+            return view('pages.landing', ['user' => $user, 'barang' => $barang]);
         }
-        return view('pages.landing');
+        return view('pages.landing', ['barang' => $barang]);
     }
 
     public function form_login()
@@ -104,5 +107,50 @@ class PembeliController extends Controller
         $user->save();
 
         return redirect()->back();
+    }
+
+    // keranjang
+    public function add_cart(Request $req, $barang_id)
+    {
+        $user = Auth::guard('pembeli')->user();
+        $keranjang = Keranjang::where('pembeli_id', $user->id)->where('barang_id', $barang_id)->first();
+
+        if ($keranjang) {
+            $keranjang->increment('jumlah');
+        } else {
+            Keranjang::create(['pembeli_id' => $user->id, 'barang_id' => $barang_id, 'jumlah' => 1]);
+        }
+
+
+        // $keranjang->barang()->syncWithoutDetaching([
+        //     $barang_id => [
+        //         'jumlah' => $keranjang->barang()->find($barang_id)?->pivot->jumlah + 1 ?? 1
+        //     ]
+        // ]);
+
+
+
+        return redirect()->back()->with('add-cart', true);
+    }
+    public function decreased_cart(Request $req, $barang_id)
+    {
+        $keranjang = Keranjang::where('pembeli_id', Auth::guard('pembeli')->user()->id)->where('barang_id', $barang_id)->first();
+
+        if ($keranjang && $keranjang->jumlah > 1) {
+            $keranjang->decrement('jumlah');
+        } elseif ($keranjang) {
+            $keranjang->delete();
+        }
+
+
+        // $keranjang->barang()->syncWithoutDetaching([
+        //     $barang_id => [
+        //         'jumlah' => $keranjang->barang()->find($barang_id)?->pivot->jumlah + 1 ?? 1
+        //     ]
+        // ]);
+
+
+
+        return redirect()->back()->with('dec-cart', true);
     }
 }

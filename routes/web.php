@@ -70,6 +70,10 @@ Route::prefix('kelola_gudang')->as('kelola.')->group(function () {
     Route::post('/logout', [Admin::class, 'logout'])->name('logout');
 });
 
+Route::prefix('keranjang')->as('keranjang.')->group(function () {
+    Route::post('/tambah/{barang_id}', [Pembeli::class, 'add_cart'])->name('add');
+});
+
 
 // //$ar = [endpoint, method, controllerFunction, nameRoute]
 
