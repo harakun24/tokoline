@@ -10,7 +10,7 @@ Route::get('/', [Pembeli::class, 'index'])->name('home');
 Route::get('/search', [Pembeli::class, 'filter_index'])->name('search');
 
 Route::prefix('login')->as('login.')->group(function () {
-    Route::get('/', [Pembeli::class, 'form_login'])->middleware(isLogin::class . ':pembeli')->name('page');
+    Route::get('/', [Pembeli::class, 'form_login'])->name('page');
     Route::post('/auth', [Pembeli::class, 'auth_login'])->name('auth');
 });
 
@@ -19,12 +19,12 @@ Route::prefix('daftar')->as('sign.')->group(function () {
     Route::post('/submit', [Pembeli::class, 'register'])->name('submit');
 });
 
-Route::prefix('profil')->as('profil.')->group(function () {
+Route::prefix('profil')->as('profil.')->middleware(isLogin::class . ':pembeli')->group(function () {
     Route::get('/', [Pembeli::class, 'show_profile'])->name('show');
     Route::put('/ubah/{id}', [Pembeli::class, 'update_profile'])->name('update');
 });
 
-Route::post('/logout', [Pembeli::class, 'logout'])->name('logout');
+Route::post('/logout', [Pembeli::class, 'logout'])->middleware(isLogin::class . ':pembeli')->name('logout');
 
 Route::prefix('kelola_barang')->as('kelola.')->group(function () {
     Route::get('/', function () {
@@ -58,29 +58,36 @@ Route::prefix('kelola_barang')->as('kelola.')->group(function () {
     Route::prefix('panel')->as('panel.')->group(function () {
         Route::get('/super', [Admin::class, 'show_super'])->name('super');
         Route::get('/super/cari', [Admin::class, 'filter_admin'])->name('filter.super');
+
         Route::get('/admin', [Admin::class, 'show_admin'])->middleware(AdminRole::class . ':3')->name('admin');
         Route::get('/kategori', [Admin::class, 'show_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
         Route::get('/barang', [Admin::class, 'show_barang'])->middleware(AdminRole::class . ':3')->name('barang');
         Route::get('/kategori/cari', [Admin::class, 'filter_kategori'])->middleware(AdminRole::class . ':3')->name('filter.kategori');
         Route::get('/barang/cari', [Admin::class, 'filter_barang'])->middleware(AdminRole::class . ':3')->name('filter.barang');
         Route::get('/barang/download', [Admin::class, 'bulk_template'])->middleware(AdminRole::class . ':3')->name('template');
-        Route::get('/cs1', [Admin::class, 'show_cs1'])->middleware(AdminRole::class . ':1')->name('cs1');
         Route::get('/cs2', [Admin::class, 'show_cs2'])->middleware(AdminRole::class . ':2')->name('cs2');
+
+        Route::middleware(AdminRole::class . ':1')->group(function () {
+            Route::get('/cs1', [Admin::class, 'show_cs1'])->name('cs1');
+            Route::post('/cs1/batal/{id}', [Admin::class, 'transaksi_batal'])->name('cancel');
+            Route::post('/cs1/konfirmasi/{id}', [Admin::class, 'transaksi_confirm'])->name('confirm');
+        });
     });
 
     Route::post('/logout', [Admin::class, 'logout'])->name('logout');
 });
 
-Route::prefix('keranjang')->as('keranjang.')->group(function () {
+Route::prefix('keranjang')->as('keranjang.')->middleware(isLogin::class . ':pembeli')->group(function () {
     Route::get('/', [Pembeli::class, 'show_cart'])->name('show');
     Route::post('/tambah/{barang_id}', [Pembeli::class, 'add_cart'])->name('add');
     Route::post('/kurang/{barang_id}', [Pembeli::class, 'decreased_cart'])->name('dec');
 });
 
-Route::prefix('transaksi')->as('transaksi.')->group(function () {
+Route::prefix('transaksi')->as('transaksi.')->middleware(isLogin::class . ':pembeli')->group(function () {
     Route::get('/', [Pembeli::class, 'transaksi_show'])->name('show');
     Route::post('/checkout', [Pembeli::class, 'transaksi_create'])->name('check');
     Route::post('/batal/{id}', [Pembeli::class, 'transaksi_remove'])->name('remove');
+    Route::post('/unggah/{id}', [Pembeli::class, 'transaksi_unggah_bukti'])->name('upload');
 });
 
 

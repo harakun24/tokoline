@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 use App\Models\Karyawan;
 use App\Models\Kategori;
+use App\Models\Transaksi;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -84,13 +85,10 @@ class AdminController extends Controller
         if (!session()->get('su'))
             return redirect()->route('kelola.login.show');
 
-        return view('pages.gudang.super', ['data' => Karyawan::paginate(7)]);
+        return view('pages.gudang.super', ['data' => Karyawan::paginate(10)]);
     }
 
-    public function show_cs1()
-    {
-        return view('pages.gudang.cs1', ['data' => Karyawan::paginate(7)]);
-    }
+
     public function show_cs2()
     {
         return view('pages.gudang.cs2', ['data' => Karyawan::paginate(7)]);
@@ -340,5 +338,23 @@ class AdminController extends Controller
         }
         Barang::insert($data);
         return redirect()->back()->with('bulk', true);
+    }
+
+    // cs1
+
+    public function show_cs1()
+    {
+        return view('pages.gudang.cs1', ['data' => Transaksi::with('pembeli')->with('transaksiDetail.barang')->where('status', 'menunggu')->paginate(7), 'user' => Auth::guard('karyawan')->user()]);
+    }
+    function transaksi_batal($id)
+    {
+        $transaksi = Transaksi::findOrFail($id);
+
+        if ($transaksi->status == 'menunggu')
+            $transaksi->status = 'dibatalkan';
+
+        $transaksi->save();
+
+        return redirect()->route('kelola.panel.cs1')->with('batal', true);
     }
 }

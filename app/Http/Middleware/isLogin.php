@@ -16,7 +16,7 @@ class isLogin
      */
     public function handle(Request $request, Closure $next, $param): Response
     {
-        if (Auth::guard($param)->check())
+        if (!Auth::guard($param)->check())
             return redirect()->route('home');
         return $next($request);
     }

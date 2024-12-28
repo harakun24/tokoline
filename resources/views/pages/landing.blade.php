@@ -6,6 +6,9 @@
                 <x-slot:user>{{ explode(' ', $user->nama)[0] }}</x-slot:user>
                 <x-slot:uname>{{ $user->username }}</x-slot:uname>
             @endif
+
+            <x-slot:cari>{{ $cari }}</x-slot:cari>
+            <x-slot:kategori>{!! json_encode($kategori) !!}</x-slot:kategori>
         </x-head>
         <div class=" w-[100%] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 grid-rows-3 p-2">
             @forelse($barang as $b)
@@ -20,6 +23,11 @@
                     <div class="flex justify-between items-center">
                         <h4>{{ $b->nama }}</h4>
                         <span class="opacity-[70%]">{{ $b->kategori->nama }}</span>
+                    </div>
+                    <div class="flex justify-end">
+                        <span class="text-[#c07a11]">
+                            stok {{ $b->stok }}
+                        </span>
                     </div>
                     <div class="flex justify-between items-center gap-2">
                         <div class="text-[#a55f0e]">Rp {{ number_format($b->harga, 0, ',', '.') }}</div>
@@ -37,10 +45,9 @@
                                         class="fa fa-shopping-cart"></i></a>
 
                                 <a href="{{ route('login.page') }}" class="p-2 text-[#d41b24]"><i
-                                        class="fa fa-heart"></i></a>
+                                        class="fa-regular fa-heart"></i></a>
                             @endif
                         </div>
-                        {{-- <a href="#" class="p-2 text-[#d41b24]"><i class="fa fa-heart"></i></a> --}}
                     </div>
                 </div>
             @empty

@@ -12,7 +12,19 @@
      <div
          class="w-[100%] flex justify-end gap-3 sm:justify-around sm:gap-0 col-start-1 col-end-4 md:col-start-3 md:col-end-4 sm:col-start-1 sm:col-end-3">
          <select class=" bg-transparent" name="kategori" id="">
-             <option value="0">Kategori</option>
+             <option value="0" disabled selected>Kategori</option>
+             <option value="0" onclick="location.href='{{ route('search') }}'">semua</option>
+             @if (isset($kategori))
+                 @php
+                     $kat = json_decode($kategori);
+                 @endphp
+                 @foreach ($kat as $k)
+                     <option value="" onclick="location.href='{{ route('search') }}?query={{ $k->nama }}'">
+                         {{ $k->nama }}
+                     </option>
+                 @endforeach
+             @endif
+
          </select>
          <a href="#">Diskon</a>
          <a href="#">Pengiriman</a>
@@ -21,8 +33,9 @@
          {{-- search --}}
          <form action="{{ route('search') }}">
              <input type="text" class="outline-none  rounded-[5px] p-2 w-[100%] peer" placeholder="Cari barang"
-                 name="query">
+                 name="query" value="{{ $cari ?? '' }}">
          </form>
+
          <i
              class="fa fa-search absolute top-[50%] -translate-y-[50%] -translate-x-[100%] right-0 peer-placeholder-shown:opacity-100 opacity-0"></i>
      </div>

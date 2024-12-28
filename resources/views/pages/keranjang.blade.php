@@ -11,8 +11,8 @@
                 <thead>
                     <tr>
                         <th class="px-4 py-2 border">no. </th>
-                        <th class="px-4 py-2 border">transaksi</th>
-                        <th class="px-4 py-2 border">total</th>
+                        <th class="px-4 py-2 border">gambar</th>
+                        <th class="px-4 py-2 border">barang</th>
                         <th class="px-4 py-2 border">harga</th>
                         <th class="px-4 py-2 border">jumlah</th>
                         <th class="px-4 py-2 border">total</th>

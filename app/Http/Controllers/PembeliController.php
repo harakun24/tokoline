@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\Kategori;
 use App\Models\Pembeli;
 use App\Models\Keranjang;
 use App\Models\Transaksi;
 use App\Models\TransaksiDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 
@@ -18,30 +20,29 @@ class PembeliController extends Controller
 
     public function index()
     {
-        $barang = Barang::with('kategori')->paginate(6);
-        if (Auth::guard('pembeli')->check()) {
-            $user = Auth::guard('pembeli')->user();
-
-            return view('pages.landing', ['user' => $user, 'barang' => $barang, 'cari' => '']);
-        }
-        return view('pages.landing', ['barang' => $barang, 'cari' => '']);
+        return redirect()->route('search');
     }
 
     public function filter_index(Request $req)
     {
-        $cari = $req->input('query');
+        $kategori = Kategori::all();
+        $cari = $req->input('query') ?? '';
 
-        $barang = Barang::with('kategori')->where('nama', 'like', '%' . $cari . '%')->paginate(6);
+        $barang = Barang::with('kategori')->where('nama', 'like', '%' . $cari . '%')->orWhereHas('kategori', function ($query) use ($cari) {
+            $query->where('nama', 'like', '%' . $cari . '%');
+        })->paginate(6);
         if (Auth::guard('pembeli')->check()) {
             $user = Auth::guard('pembeli')->user();
 
-            return view('pages.landing', ['user' => $user, 'barang' => $barang, 'cari' => '']);
+            return view('pages.landing', ['user' => $user, 'barang' => $barang, 'cari' => $cari, 'kategori' => $kategori]);
         }
-        return view('pages.landing', ['barang' => $barang, 'cari' => $cari]);
+        return view('pages.landing', ['barang' => $barang, 'cari' => $cari, 'kategori' => $kategori]);
     }
 
     public function form_login()
     {
+        if (Auth::guard('pembeli')->check())
+            return redirect()->route('home');
         return view('pages.login');
     }
     public function form_register()
@@ -98,12 +99,9 @@ class PembeliController extends Controller
 
     public function show_profile()
     {
-        if (Auth::guard('pembeli')->check()) {
-            $user = Auth::guard('pembeli')->user();
+        $user = Auth::guard('pembeli')->user();
 
-            return view('pages.profil', ['user' => $user]);
-        } else
-            return redirect()->route('home');
+        return view('pages.profil', ['user' => $user]);
     }
     public function update_profile(Request $req, $id)
     {
@@ -137,13 +135,6 @@ class PembeliController extends Controller
         }
 
 
-        // $keranjang->barang()->syncWithoutDetaching([
-        //     $barang_id => [
-        //         'jumlah' => $keranjang->barang()->find($barang_id)?->pivot->jumlah + 1 ?? 1
-        //     ]
-        // ]);
-
-
 
         return redirect()->back()->with('add-cart', true);
     }
@@ -158,13 +149,6 @@ class PembeliController extends Controller
         }
 
 
-        // $keranjang->barang()->syncWithoutDetaching([
-        //     $barang_id => [
-        //         'jumlah' => $keranjang->barang()->find($barang_id)?->pivot->jumlah + 1 ?? 1
-        //     ]
-        // ]);
-
-
 
         return redirect()->back()->with('dec-cart', true);
     }
@@ -173,22 +157,29 @@ class PembeliController extends Controller
     {
         $user = Auth::guard('pembeli')->user();
         $keranjang = Keranjang::where('pembeli_id', $user->id)->get();
-        if (Auth::guard('pembeli')->check())
-            return view('pages.keranjang',  ['user' => Auth::guard('pembeli')->user(), 'data' => $keranjang, 'total' => $keranjang->sum(function ($e) {
-                return $e->jumlah * $e->barang->harga;
-            })]);
-        else
-            return redirect()->route('home');
+        return view('pages.keranjang',  ['user' => Auth::guard('pembeli')->user(), 'data' => $keranjang, 'total' => $keranjang->sum(function ($e) {
+            return $e->jumlah * $e->barang->harga;
+        })]);
     }
-    function transaksi_showFor($id)
-    {
-        $transaksi = Transaksi::with('transaksiDetail.barang')->findOrFail($id);
+    // function transaksi_showFor($id)
+    // {
+    //     $transaksi = Transaksi::with('transaksiDetail.barang')->findOrFail($id);
 
-        return view('transaksi', ['transaksi' => $transaksi]);
-    }
+    //     return view('transaksi', ['transaksi' => $transaksi]);
+    // }
     function transaksi_show()
     {
-        $transaksi = Transaksi::with('transaksiDetail.barang')->where('pembeli_id', Auth::guard('pembeli')->user()->id)->get();
+        $transaksi = Transaksi::with('transaksiDetail.barang')->where('pembeli_id', Auth::guard('pembeli')->user()->id)->orderByRaw("
+        CASE
+            WHEN status = 'menunggu' THEN 1
+            WHEN status = 'pengemasan' THEN 2
+            WHEN status = 'pengiriman' THEN 3
+            WHEN status = 'selesai' THEN 4
+            WHEN status = 'dibatalkan' THEN 5
+            ELSE 6
+        END
+    ")
+            ->orderBy('created_at', 'desc')->paginate(10);
 
         return view('pages.transaksi', ['data' => $transaksi, 'user' => Auth::guard('pembeli')->user()]);
     }
@@ -199,21 +190,29 @@ class PembeliController extends Controller
         if ($keranjang->count() == 0)
             return redirect()->route('keranjang.show');
 
-        $transaksi = Transaksi::create([
-            'pembeli_id' => Auth::guard('pembeli')->user()->id,
-            'status' => 'menunggu'
-        ]);
+        DB::beginTransaction();
+        try {
 
-        foreach ($keranjang as $k) {
-            TransaksiDetail::create([
-                'transaksi_id' => $transaksi->id,
-                'barang_id' => $k->barang->id,
-                'jumlah' => $k->jumlah
+
+            $transaksi = Transaksi::create([
+                'pembeli_id' => Auth::guard('pembeli')->user()->id,
+                'status' => 'menunggu'
             ]);
-        }
-        Keranjang::where('pembeli_id', $transaksi->pembeli_id)->delete();
 
-        return redirect()->route('transaksi.show');
+            foreach ($keranjang as $k) {
+                TransaksiDetail::create([
+                    'transaksi_id' => $transaksi->id,
+                    'barang_id' => $k->barang->id,
+                    'jumlah' => $k->jumlah
+                ]);
+            }
+            Keranjang::where('pembeli_id', $transaksi->pembeli_id)->delete();
+            DB::commit();
+            return redirect()->route('transaksi.show');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->route('transaksi.show')->with('error', $e->getMessage());
+        }
     }
     function transaksi_remove(Request $req, $id)
     {
@@ -221,5 +220,18 @@ class PembeliController extends Controller
         $transaksi->status = 'dibatalkan';
         $transaksi->save();
         return redirect()->route('transaksi.show')->with('del', true);
+    }
+    function transaksi_unggah_bukti(Request $req, $id)
+    {
+        $transaksi = Transaksi::findOrFail($id);
+
+        $req->validate([
+            'bukti' => 'nullable|image|max:12132',
+        ]);
+        if ($req->hasFile('bukti')) {
+            $transaksi['bukti'] = $req->file('bukti')->store('bukti', 'public');
+        }
+        $transaksi->save();
+        return redirect()->route('transaksi.show')->with('unggah', true);
     }
 }

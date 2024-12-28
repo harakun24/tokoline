@@ -6,7 +6,7 @@
     <x-slot:exclass>h-[100vh] grid grid-rows-[auto_1fr] grid-cols-1</x-slot:exclass>
     <div class="grid place-items-center">
         <div
-            class="grid bg-white min-h-[280px] max-w-[85%] min-w-[55%] rounded-lg shadow-lg grid-cols-[repeat(3,auto)] gap-3 items-center content-start p-[20px] relative">
+            class="grid bg-white min-h-[280px] max-w-[85%] min-w-[55%] rounded-lg shadow-lg grid-cols-[auto_auto_1fr] gap-3 items-center content-start p-[20px] relative">
 
             <h4>username</h4> <span>:</span>
             <h4>{{ $user->username }}</h4>

@@ -2,9 +2,9 @@
     <x-slot:title>Super Panel</x-slot:title>
     <x-slot:exclass>flex justify-start flex-col items-center items-start h-[100vh] grid-cols-1 gap-4</x-slot:exclass>
 
-    <div class="bg-white min-w-[80%] mt-[20px] rounded-[5px] grid grid-cols-[auto_1fr_auto] p-4 gap-2">
-        <button class="py-2 px-4 rounded-[5px] border-2" style="background: #0bea1e;color:#04430f">tambah data <i
-                onclick="add_user()" class="fa fa-plus"></i></button>
+    <div class="bg-white min-w-[80%] mt-[20px] rounded-[5px] grid grid-cols-[auto_1fr_auto] p-4 gap-2 overflow-x-scroll">
+
+        <span>Customer Service 1 <br>{{ $user->nama }}</span>
         <span></span>
         <form action="{{ route('kelola.logout') }}" method="POST">
             @csrf
@@ -14,36 +14,67 @@
         <table class="col-span-3">
             <thead>
                 <tr>
-                    <th class="px-4 py-2 border">No. </th>
-                    <th class="px-4 py-2 border">username</th>
-                    <th class="px-4 py-2 border">nama</th>
-                    <th class="px-4 py-2 border">role</th>
+                    <th class="px-4 py-2 border">no. </th>
+                    <th class="px-4 py-2 border">pembeli</th>
+                    <th class="px-4 py-2 border">detail</th>
+                    <th class="px-4 py-2 border">total</th>
+                    <th class="px-4 py-2 border">tanggal checkout</th>
+                    <th class="px-4 py-2 border">jatuh tempo</th>
+                    <th class="px-4 py-2 border">bukti bayar</th>
                     <th class="px-4 py-2 border">opsi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($data as $d)
                     <tr class="border">
-                        <td class="border text-center py-1">{{ $loop->index + 1 }}</td>
-                        <td class="border text-center py-1">{{ $d->username }}</td>
-                        <td class="border text-center py-1">{{ $d->nama }}</td>
-                        <td class="border text-center py-1">
-                            {{ (($d->role == 1 ? 'Customer Service 1' : $d->role == 2) ? 'Customer Service 2' : $d->role == 3) ? 'Admin' : 'Other' }}
+                        <td class="p-2 text-center">{{ $loop->index + 1 }}</td>
+                        <td class="p-2 text-center border">{{ $d->pembeli->nama }}</td>
+                        <td class="p-2 text-center border"><button
+                                class="bg-[#3d94f0] p-1 whitespace-nowrap px-2 rounded-[5px]"
+                                onclick='show_detail({!! json_encode($d->transaksiDetail) !!})'>lihat</button></td>
+                        <td class="p-2 text-center border">
+                            Rp
+                            {{ number_format(
+                                $d->transaksiDetail->sum(function ($e) {
+                                    return $e->jumlah * $e->barang->harga;
+                                }),
+                                0,
+                                ',',
+                                '.',
+                            ) }}
+                        </td>
+                        <td class="p-2 text-center border">
+                            {{ $d->created_at }}
+                        </td>
+                        <td class="p-2 text-center border">
+                            {{ $d->created_at->addDay() }}
+                        </td>
+                        <td class="p-2 text-center border">
+                            @if ($d->bukti)
+                                <button class="bg-[#3d94f0] p-1 whitespace-nowrap px-2 rounded-[5px]"
+                                    onclick="show_bukti('{{ asset('storage/' . $d->bukti) }}')">lihat</button>
+                            @else
+                                <span class="text-center">belum upload</span>
+                            @endif
                         </td>
                         <td>
                             <div class="p-2 place-items-center flex justify-center gap-2">
-                                <button
-                                    onclick="edit_user({{ json_encode($d) }},'{{ route('kelola.update.user', $d->id) }}')"
-                                    class="border p-2 px-3 bg-[#29f165] rounded-[5px] text-[#1e4f30]">edit <i
-                                        class="fa fa-pencil-alt"></i></button>
-
-                                <form action="{{ route('kelola.delete.user', $d->id) }}" method="POST">
+                                <form action="{{ route('kelola.panel.cancel', $d->id) }}" method="POST">
                                     @csrf
-                                    @method('DELETE')
-                                    <button onclick="return confirm('anda yakin ingin menghapus?')"
+                                    <button onclick="return confirm('anda yakin ingin membatalkan?')"
                                         class="border p-2 px-3 bg-[#f55454] rounded-[5px] text-[#540505]"
-                                        type="submit">hapus <i class="fa fa-trash-alt"></i></button>
+                                        type="submit">batalkan</button>
                                 </form>
+                                @if ($d->bukti)
+                                    <form action="{{ route('kelola.delete.user', $d->id) }}" method="POST">
+                                        @csrf
+                                        <button onclick="return confirm('anda yakin ingin konfirmasi transaksi?')"
+                                            class="border p-2 px-3 bg-[#29f165] rounded-[5px] text-[#1e4f30]">konfirmasi</button>
+                                    </form>
+                                @else
+                                    {{--  --}}
+                                @endif
+
                             </div>
                         </td>
                     </tr>
@@ -125,6 +156,16 @@
                 timer: 1800,
                 timerProgressBar: true,
             })
+        @elseif (session('batal'))
+            Swal.fire({
+                icon: 'success',
+                title: 'transaksi dibatalkan',
+                text: "transaksi dibatalkan",
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 1800,
+                timerProgressBar: true,
+            })
         @elseif (session('del'))
             Swal.fire({
                 icon: 'success',
@@ -186,5 +227,54 @@
         </form>
             `
         });
+    }
+
+    function show_bukti(id) {
+        Swal.fire({
+            html: `
+             <img src="${id}" class="h-[50vh] w-auto"
+                                    alt="kesalahan" width="50">
+            `
+        })
+    }
+
+    function show_detail(data) {
+        console.log(data)
+        let arr = '';
+        data.forEach((item) => {
+            arr += `
+          <tr>
+            <td class="p-2 border">${item.barang.nama}</td>
+            <td class="p-2 border">
+                <div class="flex justify-center">
+                    <img src="/storage/${ item.barang.cover }" cover="aspect-[1]"
+                    alt="${item.barang.id }" width="50">
+                    </div>
+                                        </td>
+            <td class="p-2 border">Rp ${item.barang.harga*1}</td>
+            <td class="p-2 border">${item.jumlah}</td>
+            <td class="p-2 border">Rp ${item.jumlah*item.barang.harga}</td>
+            </tr>
+          `;
+        });
+        Swal.fire({
+            html: `
+            <table class="w-[100%]">
+                <thead>
+                    <tr>
+                        <th class="p-2 border">barang</th>
+                        <th class="p-2 border">cover</th>
+                        <th class="p-2 border">harga</th>
+                        <th class="p-2 border">jumlah</th>
+                        <th class="p-2 border">total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${arr}
+                    </tbody>
+            </table>
+            `,
+            confirmButtonText: 'tutup'
+        })
     }
 </script>
