@@ -21,7 +21,7 @@
                             alt="{{ $b->nama }}" width="50">
                     @endif
                     <div class="flex justify-between items-center">
-                        <h4>{{ $b->nama }}</h4>
+                        <h4 class="">{{ $b->nama }}</h4>
                         <span class="opacity-[70%]">{{ $b->kategori->nama }}</span>
                     </div>
                     <div class="flex justify-end">

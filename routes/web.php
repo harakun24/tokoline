@@ -1,8 +1,11 @@
 <?php
 
-use App\Http\Controllers\AdminController as Admin;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController as Admin;
 use App\Http\Controllers\PembeliController as Pembeli;
+use App\Http\Controllers\BarangController as Barang;
+use App\Http\Controllers\KategoriController as Kategori;
+use App\Http\Controllers\TransaksiController as Transaksi;
 use App\Http\Middleware\AdminRole;
 use App\Http\Middleware\isLogin;
 
@@ -39,38 +42,51 @@ Route::prefix('kelola_barang')->as('kelola.')->group(function () {
 
     Route::prefix('add')->as('add.')->group(function () {
         Route::post('user', [Admin::class, 'add_user'])->name('user');
-        Route::post('kategori', [Admin::class, 'add_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
-        Route::post('barang', [Admin::class, 'add_barang'])->middleware(AdminRole::class . ':3')->name('barang');
-        Route::post('barang/bulk', [Admin::class, 'import_data'])->middleware(AdminRole::class . ':3')->name('bulk');
+        Route::post('kategori', [Kategori::class, 'add_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
+        Route::post('barang', [Barang::class, 'add_barang'])->middleware(AdminRole::class . ':3')->name('barang');
+        Route::post('barang/bulk', [Barang::class, 'import_data'])->middleware(AdminRole::class . ':3')->name('bulk');
     });
 
     Route::prefix('delete')->as('delete.')->group(function () {
         Route::delete('user/{id}', [Admin::class, 'delete_user'])->name('user');
-        Route::delete('kategori/{id}', [Admin::class, 'delete_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
-        Route::delete('barang/{id}', [Admin::class, 'delete_barang'])->middleware(AdminRole::class . ':3')->name('barang');
+        Route::delete('kategori/{id}', [Kategori::class, 'delete_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
+        Route::delete('barang/{id}', [Barang::class, 'delete_barang'])->middleware(AdminRole::class . ':3')->name('barang');
     });
+
     Route::prefix('update')->as('update.')->group(function () {
         Route::put('user/{id}', [Admin::class, 'update_user'])->name('user');
-        Route::put('kategori/{id}', [Admin::class, 'update_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
-        Route::put('barang/{id}', [Admin::class, 'update_barang'])->middleware(AdminRole::class . ':3')->name('barang');
+        Route::put('kategori/{id}', [Kategori::class, 'update_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
+        Route::put('barang/{id}', [Barang::class, 'update_barang'])->middleware(AdminRole::class . ':3')->name('barang');
     });
 
     Route::prefix('panel')->as('panel.')->group(function () {
         Route::get('/super', [Admin::class, 'show_super'])->name('super');
         Route::get('/super/cari', [Admin::class, 'filter_admin'])->name('filter.super');
 
-        Route::get('/admin', [Admin::class, 'show_admin'])->middleware(AdminRole::class . ':3')->name('admin');
-        Route::get('/kategori', [Admin::class, 'show_kategori'])->middleware(AdminRole::class . ':3')->name('kategori');
-        Route::get('/barang', [Admin::class, 'show_barang'])->middleware(AdminRole::class . ':3')->name('barang');
-        Route::get('/kategori/cari', [Admin::class, 'filter_kategori'])->middleware(AdminRole::class . ':3')->name('filter.kategori');
-        Route::get('/barang/cari', [Admin::class, 'filter_barang'])->middleware(AdminRole::class . ':3')->name('filter.barang');
-        Route::get('/barang/download', [Admin::class, 'bulk_template'])->middleware(AdminRole::class . ':3')->name('template');
-        Route::get('/cs2', [Admin::class, 'show_cs2'])->middleware(AdminRole::class . ':2')->name('cs2');
 
-        Route::middleware(AdminRole::class . ':1')->group(function () {
-            Route::get('/cs1', [Admin::class, 'show_cs1'])->name('cs1');
-            Route::post('/cs1/batal/{id}', [Admin::class, 'transaksi_batal'])->name('cancel');
-            Route::post('/cs1/konfirmasi/{id}', [Admin::class, 'transaksi_confirm'])->name('confirm');
+
+        Route::middleware(AdminRole::class . ':1')->prefix('cs1')->group(function () {
+            Route::get('/', [Admin::class, 'show_cs1'])->name('cs1');
+            Route::get('/get/konfirmasi/', [Transaksi::class, 'get_transaksi_all'])->name('get');
+            Route::post('/batal/{id}', [Transaksi::class, 'transaksi_batal'])->name('cancel');
+            Route::post('/konfirmasi/{id}', [Transaksi::class, 'confirm_transaksi'])->name('confirm');
+        });
+
+        Route::middleware(AdminRole::class . ':2')->group(function () {
+            Route::get('/cs2', [Admin::class, 'show_cs2'])->name('cs2');
+            Route::get('/get/proses', [Transaksi::class, 'get_proses'])->name('proses');
+            Route::post('/kemas/{id}', [Barang::class, 'kemas_barang'])->name('kemas');
+            Route::post('/kirim/{id}', [Barang::class, 'kirim_barang'])->name('kirim');
+            Route::post('/sampai/{id}', [Barang::class, 'sampai_barang'])->name('sampai');
+        });
+
+        Route::middleware(AdminRole::class . ':3')->group(function () {
+            Route::get('/admin', [Admin::class, 'show_admin'])->name('admin');
+            Route::get('/kategori', [Kategori::class, 'show_kategori'])->name('kategori');
+            Route::get('/barang', [Barang::class, 'show_barang'])->name('barang');
+            Route::get('/kategori/cari', [Kategori::class, 'filter_kategori'])->name('filter.kategori');
+            Route::get('/barang/cari', [Barang::class, 'filter_barang'])->name('filter.barang');
+            Route::get('/barang/download', [Barang::class, 'bulk_template'])->name('template');
         });
     });
 
@@ -84,10 +100,11 @@ Route::prefix('keranjang')->as('keranjang.')->middleware(isLogin::class . ':pemb
 });
 
 Route::prefix('transaksi')->as('transaksi.')->middleware(isLogin::class . ':pembeli')->group(function () {
-    Route::get('/', [Pembeli::class, 'transaksi_show'])->name('show');
-    Route::post('/checkout', [Pembeli::class, 'transaksi_create'])->name('check');
-    Route::post('/batal/{id}', [Pembeli::class, 'transaksi_remove'])->name('remove');
-    Route::post('/unggah/{id}', [Pembeli::class, 'transaksi_unggah_bukti'])->name('upload');
+    Route::get('/', [Transaksi::class, 'transaksi_show'])->name('show');
+    Route::post('/checkout', [Transaksi::class, 'transaksi_create'])->name('check');
+    Route::post('/batal/{id}', [Transaksi::class, 'transaksi_remove'])->name('remove');
+    Route::post('/unggah/{id}', [Transaksi::class, 'transaksi_unggah_bukti'])->name('upload');
+    Route::get('/get/{id}', [Transaksi::class, 'get_transaksi'])->name('get');
 });
 
 

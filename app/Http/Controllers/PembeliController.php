@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\AutoRefresh;
 use App\Models\Barang;
 use App\Models\Kategori;
 use App\Models\Pembeli;
@@ -167,71 +168,5 @@ class PembeliController extends Controller
 
     //     return view('transaksi', ['transaksi' => $transaksi]);
     // }
-    function transaksi_show()
-    {
-        $transaksi = Transaksi::with('transaksiDetail.barang')->where('pembeli_id', Auth::guard('pembeli')->user()->id)->orderByRaw("
-        CASE
-            WHEN status = 'menunggu' THEN 1
-            WHEN status = 'pengemasan' THEN 2
-            WHEN status = 'pengiriman' THEN 3
-            WHEN status = 'selesai' THEN 4
-            WHEN status = 'dibatalkan' THEN 5
-            ELSE 6
-        END
-    ")
-            ->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('pages.transaksi', ['data' => $transaksi, 'user' => Auth::guard('pembeli')->user()]);
-    }
-    function transaksi_create()
-    {
-        $keranjang = Keranjang::where('pembeli_id', Auth::guard('pembeli')->user()->id)->get();
-
-        if ($keranjang->count() == 0)
-            return redirect()->route('keranjang.show');
-
-        DB::beginTransaction();
-        try {
-
-
-            $transaksi = Transaksi::create([
-                'pembeli_id' => Auth::guard('pembeli')->user()->id,
-                'status' => 'menunggu'
-            ]);
-
-            foreach ($keranjang as $k) {
-                TransaksiDetail::create([
-                    'transaksi_id' => $transaksi->id,
-                    'barang_id' => $k->barang->id,
-                    'jumlah' => $k->jumlah
-                ]);
-            }
-            Keranjang::where('pembeli_id', $transaksi->pembeli_id)->delete();
-            DB::commit();
-            return redirect()->route('transaksi.show');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return redirect()->route('transaksi.show')->with('error', $e->getMessage());
-        }
-    }
-    function transaksi_remove(Request $req, $id)
-    {
-        $transaksi = Transaksi::findOrFail($id);
-        $transaksi->status = 'dibatalkan';
-        $transaksi->save();
-        return redirect()->route('transaksi.show')->with('del', true);
-    }
-    function transaksi_unggah_bukti(Request $req, $id)
-    {
-        $transaksi = Transaksi::findOrFail($id);
-
-        $req->validate([
-            'bukti' => 'nullable|image|max:12132',
-        ]);
-        if ($req->hasFile('bukti')) {
-            $transaksi['bukti'] = $req->file('bukti')->store('bukti', 'public');
-        }
-        $transaksi->save();
-        return redirect()->route('transaksi.show')->with('unggah', true);
-    }
 }

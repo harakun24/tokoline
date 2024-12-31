@@ -14,5 +14,5 @@ use Illuminate\Support\Facades\Schedule;
 // Schedule::job(new AutoReject)->everyFiveSeconds();
 
 Schedule::call(function () {
-    Transaksi::where('created_at', '<=', Carbon::now()->subMinutes(1))->update(['status' => 'dibatalkan']);
-})->everyTwoSeconds();
+    Transaksi::where('created_at', '<=', Carbon::now()->subDays(1))->where('status', 'menunggu')->update(['status' => 'dibatalkan']);
+})->everyThirtySeconds();

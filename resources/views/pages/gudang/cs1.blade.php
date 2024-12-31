@@ -66,7 +66,7 @@
                                         type="submit">batalkan</button>
                                 </form>
                                 @if ($d->bukti)
-                                    <form action="{{ route('kelola.delete.user', $d->id) }}" method="POST">
+                                    <form action="{{ route('kelola.panel.confirm', $d->id) }}" method="POST">
                                         @csrf
                                         <button onclick="return confirm('anda yakin ingin konfirmasi transaksi?')"
                                             class="border p-2 px-3 bg-[#29f165] rounded-[5px] text-[#1e4f30]">konfirmasi</button>
@@ -186,7 +186,25 @@
                 timer: 1800,
                 timerProgressBar: true,
             })
+        @elseif (session('proses'))
+            Swal.fire({
+                icon: 'success',
+                title: 'berhasil memproses',
+                text: "transaksi diteruskan ke cs2",
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 1800,
+                timerProgressBar: true,
+            })
         @endif
+
+        listen(transaksi, '{{ route('kelola.panel.get') }}', function(data) {
+            fetch(window.location).then(e => e.text()).then(e => {
+                e = e.split('<tbody>')[1].split('</tbody>')[0];
+                document.querySelector('tbody').innerHTML = e;
+            })
+        });
+
     }
 
     function edit_user(data, dest) {
@@ -277,4 +295,5 @@
             confirmButtonText: 'tutup'
         })
     }
+    let transaksi = {!! $transaksi !!};
 </script>

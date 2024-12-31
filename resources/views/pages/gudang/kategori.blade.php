@@ -3,11 +3,11 @@
     <div class="col-span-2 flex gap-2">
         <a href="{{ route('kelola.panel.admin') }}" class="border p-2 px-4 rounded-[5px] bg-[#9bf498] text-[#063e22]"> <i
                 class="fa fa-arrow-left"></i> kembali</a>
-        <button class="border p-2 px-4 rounded-[5px] bg-[#ff1535] text-[#3e0606]" onclick="add_item()">tambah <i
+        <button class="border p-2 px-4 rounded-[5px] bg-[#ff798b] text-[#3e0606]" onclick="add_item()">tambah <i
                 class="fa fa-plus"></i></button>
         <form action="{{ route('kelola.panel.filter.kategori') }}" method="GET"
             class="border grid place-items-center px-2">
-            <input type="text" name="query" placeholder="cari" />
+            <input type="text" name="query" placeholder="cari" value="{{ $cari }}" />
         </form>
     </div>
     <h3>kategori</h3>

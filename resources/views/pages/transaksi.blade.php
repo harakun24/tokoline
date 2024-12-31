@@ -52,7 +52,7 @@
                                             class="fa fa-eye"></i></button>
                                 </div>
                             </td>
-                            @if ($d->status != 'dibatalkan' && $d->status != 'selesai')
+                            @if ($d->status == 'menunggu')
                                 <td class="border">
                                     <div class="p-2 place-items-center flex justify-center gap-2">
 
@@ -61,10 +61,23 @@
                                             <button class="border p-2 px-3 bg-[#f55454] rounded-[5px] text-[#540505]"
                                                 type="submit">batalkan</button>
                                         </form>
+                                        @if (!$d->bukti)
+                                            <button class="border p-2 px-3 bg-[#29f165] rounded-[5px] text-[#1e4f30]"
+                                                onclick="unggah('{{ route('transaksi.upload', $d->id) }}')"
+                                                type="submit">pembayaran</button>
+                                        @endif
+                                    </div>
+                                </td>
+                            @elseif($d->status == 'dikirim')
+                                <td class="border">
+                                    <div class="p-2 place-items-center flex justify-center gap-2">
 
-                                        <button class="border p-2 px-3 bg-[#29f165] rounded-[5px] text-[#1e4f30]"
-                                            onclick="unggah('{{ route('transaksi.upload', $d->id) }}')"
-                                            type="submit">pembayaran</button>
+                                        <form action="{{ route('kelola.panel.sampai', $d->id) }}" method="POST">
+                                            @csrf
+                                            <button class="border p-2 px-3 bg-[#54f584] rounded-[5px] text-[#055423]"
+                                                onclick="confirm('yakin barang sudah diterima?')" type="submit">
+                                                sampai</button>
+                                        </form>
                                     </div>
                                 </td>
                             @endif
@@ -99,17 +112,27 @@
                 timer: 3500,
                 timerProgressBar: true,
             })
+        @elseif (session('unggah'))
+            Swal.fire({
+                icon: 'success',
+                title: 'berhasil unggah',
+                text: "berhasil upload bukti bayar",
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 1800,
+                timerProgressBar: true,
+            })
+        @elseif (session('sampai'))
+            Swal.fire({
+                icon: 'success',
+                title: 'transaksi selesai',
+                text: "barang sampai ke tujuan",
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 1800,
+                timerProgressBar: true,
+            })
         }
-    @elseif (session('unggah'))
-        Swal.fire({
-            icon: 'success',
-            title: 'berhasil unggah',
-            text: "berhasil upload bukti bayar",
-            showCancelButton: false,
-            showConfirmButton: false,
-            timer: 1800,
-            timerProgressBar: true,
-        })
     @endif
     function show_detail(data) {
         console.log(data)
@@ -165,4 +188,15 @@
             showConfirmButton: false
         })
     }
+
+    window.onload = function() {
+        listen(transaksi, '{{ route('transaksi.get', $user->id) }}', function(data) {
+            fetch(window.location).then(e => e.text()).then(e => {
+                e = e.split('<tbody>')[1].split('</tbody>')[0];
+                document.querySelector('tbody').innerHTML = e;
+            })
+        });
+    }
+
+    let transaksi = {!! json_encode($transaksi) !!};
 </script>

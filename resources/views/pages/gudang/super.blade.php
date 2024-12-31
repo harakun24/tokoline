@@ -14,7 +14,7 @@
         </form>
         <form action="{{ route('kelola.panel.filter.super') }}" method="GET"
             class="col-span-3 border grid place-items-center py-2 px-2">
-            <input type="text" name="query" class="w-[100%]" placeholder="cari" />
+            <input type="text" name="query" class="w-[100%]" placeholder="cari" value="{{ $cari }}" />
         </form>
         <table class="col-span-3">
             <thead>

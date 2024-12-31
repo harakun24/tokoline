@@ -3,11 +3,11 @@
     <div class="col-span-2 flex gap-2">
         <a href="{{ route('kelola.panel.admin') }}" class="border p-2 px-4 rounded-[5px] bg-[#9bf498] text-[#063e22]"> <i
                 class="fa fa-arrow-left"></i> kembali</a>
-        <button class="border p-2 px-4 rounded-[5px] bg-[#ff1535] text-[#3e0606]" onclick="add_item()">tambah</button>
+        <button class="border p-2 px-4 rounded-[5px] bg-[#fd576d] text-[#3e0606]" onclick="add_item()">tambah</button>
         <button class="border p-2 px-4 rounded-[5px] bg-[#e87f15] text-[#3e0606]" onclick="add_item_bulk()">bulk </button>
         <form action="{{ route('kelola.panel.filter.barang') }}" method="GET"
             class="border grid place-items-center px-2">
-            <input type="text" name="query" placeholder="cari" />
+            <input type="text" name="query" placeholder="cari" value="{{ $cari }}" />
         </form>
     </div>
     <h3>barang</h3>
