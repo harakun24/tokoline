@@ -2,68 +2,113 @@
 
 # Web Toko Online Sederhana
 
-## cara installasi
+## Hal yang perlu diinstall
 
-### 1. pastikan program berikut sudah terinstall dan siap dijalankan
+untuk menjalankan web toko sederhana ini diperlukan beberapa aplikasi berikut:
 
--   php (versi 8.4)
-
--   postgreSQL
-
--   node.js (untuk front-end)
-
+-   PHP (v8.4)
 -   composer
+-   PostgreSQL (database)
+-   Node.js
 
-### 2. aktifkan beberapa ekstensi pada file `php.ini` dengan cara menghapus `;` di depan extensi
+### konfigurasi ekstensi php
 
-file php.ini berada satu folder dengan file php.exe
+masuk ke file `php.ini` dan aktifkan beberapa ekstensi berikut dengan cara menghapus tanda `;` di depan extension
 
--   extension=intl
--   extension=pdo_pgsql
--   extension=pgsql
--   extension=zip
--   extension=fileinfo
--   extension=gd
+extension=curl
+extension=fileinfo
+extension=gd
+extension=intl
+extension=mbstring
+extension=openssl
+extension=pdo_pgsql
+extension=pgsql
+extension=zip
 
-### 3. ubah ukuran file maksimal yang dapat dikirim jika perlu (upload sampul barang)
+ubah ukuran upload_max_filesize supaya foto bukti transfer dapat diupload dengan lancar (jika file sedikit lebih besar)
+contoh: upload_max_filesize = 10M
 
-upload_max_filesize = 10M
+# menjalankan web
 
-### 4. install dependensi laravel
+isi konfigurasi file pada `.env`
 
-masuk pada folder tokoline kemudian ketik perintah di terminal:
+tambahkan baris berikut untuk login sebagai super user (mengelola user Admin, CS1 dan CS2)
 
-`commposer install`
+SU_USER=sesuaikan
+SU_PASSWORD=sesuaikan
 
-### 5. salin file .env
+sesuaikan kolom database untuk koneksi ke database
 
-tambahkan baris SU untuk membuat akun superadmin
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=tokoline
+DB_USERNAME=root
+DB_PASSWORD=root
 
-```env
-SU_USER=user
-SU_PASSWORD=user
-```
+## installasi depedency
 
-### 6. install dependensi javascript
+install keperluan Laravel
+
+`composer install`
+
+install keperluan javascript
 
 `npm install`
 
-### 7. jalankan database `postgreSQL`
+## konfigurasi database
 
-### 8. migrasi database
+hidupkan postgreSQL terlebih dahulu lalu jalankan
 
 `php artisan migrate`
 
-### 9 persiapkan asset
+## build front-end
 
-untuk mode dev (jangan ditutup):
+build kebutuhan front-end dengan perintah berikut
 
-`npm run dev`
+`npm run build` atau jika dalam proses development(jangan dimatikan) `npm run dev`
 
-### 10 jalankan server laravel
+### otomasi tugas
+
+Buat cronjob pada linux:
+
+`* * * * * php /lokasi_project/artisan schedule:run >> /dev/null 2>&1`
+
+atau jalankan file node berikut (jangan ditutup)
+`node autoBatal.js`
+
+## Jalankan server
 
 `php artisan serve`
 
-### 11 masuk menu admin
+### Mengelola user
 
-masuk ke url `/kelola_barang`
+masuk manual ke `/kelola_barang`
+
+masuk menggunakan akun yang disetting pada `.env`
+
+tambahkan admin,cs1 dan cs2 dari panel super admin
+
+masuk menggunakan akun yang telah dibuat
+
+#### Admin
+
+-   mengelola barang dan kategori
+-   bulk input
+
+#### CS1
+
+-   validasi transaksi
+-   otomatis terbatalkan jika 1x24 jam tidak tervalidasi
+
+#### CS2
+
+-   pengemasan barang
+-   pengiriman barang
+-   memantau sampai barang diterima
+
+## pengunjung
+
+untuk pengunjung dapat melihat katalog barang. namun untuk memasukkan keranjang perlu masuk terlebih dulu.
+
+Jika belum memiliki akun maka silahkan membuat akun terlebih dulu.
